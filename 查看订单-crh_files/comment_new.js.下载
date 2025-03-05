@@ -1,0 +1,65 @@
+function showComment() {
+	AjaxGet('/comment/showComment', {'merccode':$('#merccode').val()}, loadComSuccess);
+//	window.location.href= cu('/comment/showComment');
+}
+function loadComSuccess(r) {
+	$('body').append(r);
+	$(".commstar").find(".star").each(function(i, k) {
+		$(k).on('click', function() {
+			$(k).parent().find(".star").removeClass("active");
+			$(k).addClass("active");
+			$("#score_"+$(k).data('index')).text($(k).data("value"));
+		})
+	})
+	$(".maskbody").fadeIn('fast', function() {
+		$("#comment").show();
+	});
+	$('.change-item-list').find('li').each(function(i, k) {
+		$(k).on('click', function() {
+			if($(k).hasClass('selected')){
+				$(k).removeClass('selected');
+			}else{
+				if($('.change-item-list').find('.selected').length >= 3){
+					info('最多可选择三项');
+				}else{
+					$(k).addClass('selected');
+				}
+			}
+		})
+	})
+}
+function closed(o, m) {
+	$(o).slideUp();
+	$(m).fadeOut();
+}
+
+
+function comment(){
+/*	var a = [];
+	$('.change-item-list').find('.selected').each(function(i,k){
+		a.push($(k).data('value'));
+	})
+	var b = a.join(',');*/
+	var param = {};
+//	param.levels = $(".commstar").find('.active').data('score');
+	var c = [];
+	for(var i = 0;i<$('.grade-box').length;i++){
+		c.push($("#commstar_"+i).find('.active').data('score')+'_'+$('#type_'+i).val());
+	}
+	param.levelAndTypeid = c.join(',');
+	param.orderid = $('#orderid').val();
+	param.productid = $('#serviceid').val();
+//	param.context = b;
+	param.context = $('#context').val();
+	param.comtype = $('#checkimg').data('value');
+//	alert(JSON.stringify(param));
+//	return false;
+	AjaxPost('/comment/save',param,function(o){
+//		closeloading();
+		closed('#comment', '.maskbody');
+		info(o.message);
+		if(o.result == '1'){
+			$('#showComment').hide();
+		}
+	});
+}
